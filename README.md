@@ -71,7 +71,7 @@ llm_convert.py -m /workspace/Qwen3-VL-4B-Instruct  -s 2048 \
 # 编译完成后，在指定目录qwen3vl_4b生成qwen3-vl-xxx.bmodel和config，拷贝到算力盒子对应目录
 ```
 
-#### 1.4 编译Python扩展库（必要步骤）
+#### 1.4 编译Python扩展库（可选，如需重新编译）
 ```bash
 # 编译库文件生成chat.cpython*.so
 mkdir build && cd build
