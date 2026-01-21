@@ -18,20 +18,17 @@
 #### 1.1 下载预编译模型文件（推荐，无需自行编译）
 直接下载算能官方预编译的BM1684X模型文件，省去编译步骤：
 ```bash
-# 解压服务包并准备目录
-unzip qwen3vl_service.zip
-cd qwen3vl_service
-mkdir -p models/qwen3vl_4b
+# 准备目录
+cd qwen3-vl-sophon-tpu-serving
+mkdir -p ./models/qwen3vl_4b
 
 # 安装依赖
 pip3 install -r requirements.txt
 
 # 下载1684x 4B模型（最大1K输入, 768x768像素, 视频最长12s/1帧/秒）
+pip install dfss
 python3 -m dfss --url=open@sophgo.com:/ext_model_information/LLM/LLM-TPU/qwen3-vl-4b-instruct_w4bf16_seq2048_bm1684x_1dev_20251026_141347.bmodel
-```
 
-#### 1.2 下载配置文件
-```bash
 # 克隆算能LLM-TPU仓库
 git clone https://github.com/sophgo/LLM-TPU.git
 
@@ -42,11 +39,12 @@ cp -r ./LLM-TPU/models/Qwen3_VL/config/* ./models/qwen3vl_4b/
 mv qwen3-vl-4b-instruct_w4bf16_seq2048_bm1684x_1dev_20251026_141347.bmodel ./models/qwen3vl_4b/
 ```
 
-#### 1.3 （可选）手动编译模型
+#### 1.2 （可选）手动编译模型
 若需自定义模型参数，可按以下步骤编译bmodel（目前只支持在x86主机进行模型编译）：
 ```bash
 # 1. 下载原始模型（ModelScope）
 # 下载4B模型
+pip install modelscope
 modelscope download --model Qwen/Qwen3-VL-4B-Instruct --local_dir Qwen3-VL-4B-Instruct
 
 # 2. 启动算能编译容器
@@ -66,20 +64,16 @@ source ./envsetup.sh  # 激活环境变量
 
 # 4. 编译生成bmodel（容器内执行）
 # 编译4B模型（max_input_length=1024, 768x768像素, w4bf16量化）
-pip3 install transformers torchvision -U  # 解决版本依赖问题
+# 如果有提示transformers/torch版本问题，pip3 install transformers torchvision -U
 llm_convert.py -m /workspace/Qwen3-VL-4B-Instruct  -s 2048 \
   --max_input_length 1024  --quantize w4bf16  -c bm1684x \
   --out_dir /workspace/qwen3vl_service/models/qwen3vl_4b  --max_pixels 768,768
-# 编译完成后，在指定目录qwen3vl_4b生成qwen3-vl-xxx.bmodel和config，拷贝到算力盒子
+# 编译完成后，在指定目录qwen3vl_4b生成qwen3-vl-xxx.bmodel和config，拷贝到算力盒子对应目录
 ```
 
 #### 1.4 编译Python扩展库（必要步骤）
 ```bash
-# 安装Python依赖（推荐Python3.10）
-pip3 install -U torchvision transformers qwen_vl_utils
-
 # 编译库文件生成chat.cpython*.so
-cd qwen3vl_service
 mkdir build && cd build
 cmake .. && make
 cp *cpython* ../ && cd ..
@@ -374,7 +368,7 @@ grep -i error service.log
 bm-smi
 
 # 验证模型文件完整性
-md5sum models/qwen3vl_2b/*.bmodel
+md5sum models/qwen3vl_4b/*.bmodel
 ```
 
 ### 3. 并发请求异常（认证相关）
@@ -386,7 +380,7 @@ md5sum models/qwen3vl_2b/*.bmodel
 # 默认格式：Authorization: Bearer abc@123
 
 # 3. 临时禁用API认证排查问题
-python main_serving.py -m ./models/qwen3vl_2b -c 10 --disable-api-auth
+python main_serving.py -m ./models/qwen3vl_4b -c 10 --disable-api-auth
 
 # 4. 查看认证相关错误日志
 grep -i "401\|unauthorized" service.log

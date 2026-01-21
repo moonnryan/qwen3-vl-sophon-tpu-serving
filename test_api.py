@@ -26,11 +26,11 @@ logger = logging.getLogger(__name__)
 # 默认配置项
 DEFAULT_BASE_URL = "http://localhost:8899"  # 合并后的基础地址
 DEFAULT_MAX_CONCURRENT = 10  # 默认并发数
-DEFAULT_REQUEST_TIMEOUT = 60  # 默认单个请求超时时间（秒）
+DEFAULT_REQUEST_TIMEOUT = 120  # 默认单个请求超时时间（秒）
 DEFAULT_TEST_CASE_COUNT = 10  # 默认测试用例数量
-DEFAULT_API_KEY = "abc@123"  # 新增：默认API Key
-DEFAULT_API_KEY_HEADER = "Authorization"  # 新增：默认API请求头
-DEFAULT_API_KEY_PREFIX = "Bearer"  # 新增：默认API Key前缀
+DEFAULT_API_KEY = "abc@123"  # 默认API Key
+DEFAULT_API_KEY_HEADER = "Authorization"  # 默认API请求头
+DEFAULT_API_KEY_PREFIX = "Bearer"  # 默认API Key前缀
 
 # 测试文件路径（请根据实际环境修改）
 LOCAL_IMAGE_PATH = "./test.jpg"
